@@ -2,7 +2,7 @@
 
 > Today I Learned
 
-A collection of small things I learn day to day out of necessity, more than anything...
+A collection of small things I learn day to day
 
 ---
 
@@ -12,6 +12,7 @@ A collection of small things I learn day to day out of necessity, more than anyt
 * [OSX](#osx)
 * [Serverless](#serverless)
 * [ViM](#vim)
+* [JS](#js)
 ---
 
 ### MySQL
@@ -31,3 +32,7 @@ A collection of small things I learn day to day out of necessity, more than anyt
 
 - [Create a new file in a new directory](vim/create-a-new-file-in-a-new-directory.md)
 - [Delete the current buffer, and the file](vim/delete-the-current-buffer-and-the-file.md)
+
+### JS
+
+- [Composition - pipe a value through 2 separate functions](js/pipe-a-value-through-2-separate-functions.md)
