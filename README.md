@@ -8,11 +8,12 @@ A collection of small things I learn day to day
 
 ### Categories
 
+* [Computer Networking](#computer-networking)
+* [JS](#js)
 * [MySQL](#mysql)
 * [OSX](#osx)
 * [Serverless](#serverless)
 * [ViM](#vim)
-* [JS](#js)
 ---
 
 ### MySQL
@@ -39,4 +40,4 @@ A collection of small things I learn day to day
 
 ### Computer Networking
 
-- [Service exposes port only on 127.0.0.1, make it accessible on all network interfaces instead](networking/expose-port-to-all-interfaces.md)
+- [Service exposes port only on 127.0.0.1, make it accessible on all network interfaces instead](networking/export-port-to-all-interfaces.md)
