@@ -36,3 +36,7 @@ A collection of small things I learn day to day
 ### JS
 
 - [Composition - pipe a value through 2 separate functions](js/pipe-a-value-through-2-separate-functions.md)
+
+### Computer Networking
+
+- [Service exposes port only on 127.0.0.1, make it accessible on all network interfaces instead](networking/expose-port-to-all-interfaces.md)
