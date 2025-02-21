@@ -8,6 +8,7 @@ A collection of small things I learn day to day
 
 ### Categories
 
+* [AI](#ai)
 * [Computer Networking](#computer-networking)
 * [JS](#js)
 * [MySQL](#mysql)
@@ -15,6 +16,10 @@ A collection of small things I learn day to day
 * [Serverless](#serverless)
 * [ViM](#vim)
 ---
+
+### AI
+
+- [Documentation -> Code -> Refactor -> Documentation](AI/documentation-to-code-to-documentation-cycle.md)
 
 ### MySQL
 
