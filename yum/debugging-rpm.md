@@ -24,10 +24,10 @@ Description  :
 
 ### But what if it doesn't?
 
-Query Yum packages, extracts specific fields, sorts by install time, and filters for the p2-config-server package:
+Query Yum packages, extracts specific fields, sorts by install time, and filters for package by name:
 
 ```bash
-repoquery --all --qf "%{name}-%{version}-%{release} %{installtime} %{buildtime}" | sort -k2,2n | grep p2-config-server
+repoquery --all --qf "%{name}-%{version}-%{release} %{installtime} %{buildtime}" | sort -k2,2n | grep your-name
 ```
 
 - `sort -k2,2n` sorts by 2nd column, numerically, so look for the latest uploaded package at the bottom of the output

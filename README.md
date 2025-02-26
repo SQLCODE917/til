@@ -9,6 +9,7 @@ A collection of small things I learn day to day
 ### Categories
 
 * [AI](#ai)
+* [Yum](#yum)
 * [Computer Networking](#computer-networking)
 * [JS](#js)
 * [MySQL](#mysql)
