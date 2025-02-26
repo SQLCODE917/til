@@ -17,6 +17,9 @@ A collection of small things I learn day to day
 * [ViM](#vim)
 ---
 
+### Yum
+- [Debugging RPMs](yum/debugging-rpm.md)
+
 ### AI
 
 - [Documentation -> Code -> Refactor -> Documentation](AI/documentation-to-code-to-documentation-cycle.md)
