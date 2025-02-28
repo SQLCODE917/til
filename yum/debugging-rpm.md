@@ -71,3 +71,20 @@ tasks.named("buildRpm") {
 
 Where does `buildRpm` come from?
 From [this Plugin](https://github.com/nebula-plugins/gradle-ospackage-plugin/wiki/RPM-Plugin)
+
+check where the RPM is installed to:
+```bash
+rpm -ql [RPM-name]
+```
+check that the right libs are in the (installed) RPM:
+```bash
+repoquery --list [RPM-name]
+```
+or check that the right libs are in the (not installed) RPM:
+```bash
+repoquery --location [RPM-name]
+```
+will return the URL
+```bash
+rpm -qlp [URL]
+```
