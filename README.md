@@ -23,6 +23,7 @@ A collection of small things I learn day to day
 
 ### AI
 
+- [Decoding Flow and Diffusion Models](AI/flow-matching-and-diffusion-models-S01E01.md)
 - [Documentation -> Code -> Refactor -> Documentation](AI/documentation-to-code-to-documentation-cycle.md)
 
 ### MySQL
