@@ -73,6 +73,36 @@ u(X, t) is a velocity vector that tells you the direction and speed of movement 
 The vector field pushes points along the trajectory.
 [JS Example of a moving trajectory using a vector field](https://gist.github.com/SQLCODE917/2d6b1fd014144198d17dca697a0ca053)
 
-An ODE is a mathematical equation that tells us how a system changes over time.
-The rate of change of Xt (the trajectory) is equal to the velocity given by the vector field ut.
-Given an initial condition X0, solving the ODE traces the entire trajectory.
+An ODE is a mathematical equation that tells us how the state of the system changes over time.
+i.e. `Vector Field(X[t]) = derivative(X[t])`, or
+the rate of change of Xt, AKA The Trajectory, is equal to the velocity given by the vector field
+
+Solving the ODE gives us the function X[t] that describes how the point moves.
+
+```
+// Vector in d-dimensional space
+type Vector = number[];
+
+// Vector Field (ODE definition)
+type VectorField = (x: Vector, t: number) => Vector;
+
+/**
+ * An Ordinary Differential Equation (ODE)
+ * Defines how a system evolves over time
+ */
+type ODE = {
+    vectorField: VectorField; // Function defining the dynamics
+};
+
+/**
+ * A Trajectory is a function that returns the state at any time t
+ * It is a solution to the ODE for a specific initial condition X0
+ */
+type Trajectory = (t: number) => Vector;
+
+/**
+ * A Flow is a collection of solutions (trajectories) for different initial conditions
+ * It maps an initial condition X0 to the trajectory solution at time t
+ */
+type Flow = (X0: Vector, t: number) => Vector;
+```
