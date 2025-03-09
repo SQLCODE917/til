@@ -79,7 +79,7 @@ the rate of change of Xt, AKA The Trajectory, is equal to the velocity given by 
 
 Solving the ODE gives us the function X[t] that describes how the point moves.
 
-```
+```javascript
 // Vector in d-dimensional space
 type Vector = number[];
 
@@ -120,7 +120,7 @@ We assume these conditions hold, so each starting point leads to exactly 1 traje
 
 The idea is to go in the direction of the vector field one small step at a time.
 
-```
+```javascript
 /**
  * Euler Method to numerically solve ODE: dx/dt = f(x, t)
  * @param {Function} vectorField - Function f(x, t) defining the ODE
