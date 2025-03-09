@@ -106,3 +106,51 @@ type Trajectory = (t: number) => Vector;
  */
 type Flow = (X0: Vector, t: number) => Vector;
 ```
+
+## Does a solution exist and is it unique?
+
+The Picard-Lingelof Theorem tells us when a system that evolves over time (like an object moving or an image being transformed) has a unique and predictable path.
+For this to be true, the Vector Field needs to be:
+- Continuous: no suden jumps
+- Smooth (Lipschitz condition): small changes in the starting position should only create small changes in the path.
+
+We assume these conditions hold, so each starting point leads to exactly 1 trajectory.
+
+## Numerical ODE Simulation - Euler method
+
+The idea is to go in the direction of the vector field one small step at a time.
+
+```
+/**
+ * Euler Method to numerically solve ODE: dx/dt = f(x, t)
+ * @param {Function} vectorField - Function f(x, t) defining the ODE
+ * @param {number} initialTime - Starting time (t0)
+ * @param {number} finalTime - Ending time (T)
+ * @param {number} initialValue - Initial condition x(t0)
+ * @param {number} numSteps - Number of steps (n)
+ * @returns {Array} - Array of [time, value] pairs representing the trajectory
+ */
+function eulerMethod(vectorField, initialTime, finalTime, initialValue, numSteps) {
+    let stepSize = (finalTime - initialTime) / numSteps; // h = (T - t0) / n
+    let time = initialTime;
+    let value = initialValue;
+    let trajectory = [[time, value]]; // Store results
+
+    // Iteratively compute values using Euler's formula
+    for (let i = 0; i < numSteps; i++) {
+        value = value + stepSize * vectorField(value, time); // x_{t+h} = x_t + h * f(x_t, t)
+        time += stepSize; // Update time
+        trajectory.push([time, value]);
+    }
+
+    return trajectory;
+}
+
+// Example: Solve dx/dt = x with x(0) = 1 over t = [0,1] with 10 steps
+function exampleVectorField(x, t) {
+    return x; // Simple exponential growth dx/dt = x
+}
+
+let solution = eulerMethod(exampleVectorField, 0, 1, 1, 10);
+console.log("Euler Method Solution:", solution);
+```
