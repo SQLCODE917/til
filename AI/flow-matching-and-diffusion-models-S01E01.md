@@ -154,3 +154,78 @@ function exampleVectorField(x, t) {
 let solution = eulerMethod(exampleVectorField, 0, 1, 1, 10);
 console.log("Euler Method Solution:", solution);
 ```
+
+## Where does Machine Learning come in?
+
+### Flow Model
+
+Takes P_init, which is a Gaussian distribution, does a transformation with an ODE, returns P_data, which is the data distribution.
+Make the Vector Field that defines this ODE a Neural Network.
+The architecture of the Neural Network varies by modality: whether it's images, video, proteins, etc, and will be covered later.
+Vector field, which is a function of time and space, and Thera which are the parameters we can optimize over.
+An ODE is deterministic, so we won't be able to generate a full distribution yet.
+So what we do is make the initial distribution random: X0 is sampled from P_init.
+Our goal is that X1 has the distribution P_data.
+
+### Diffusion Model
+
+They use Stochastic Differential Equations.
+That means that their Trajectories are random.
+
+Stochastic Process has these parts:
+- Random variable X_t, random variable from 0~1
+- Trajectory X, which is a function of time
+- Because X is random, we can draw samples from X
+- Vector Field is the same as in ODEs + the Diffusion Coefficient (sigma)
+- Diffusion Coefficnent is a function of time which injects randomness (or Stochasticity) into our ODE
+- Stochastic Differential Equation (SDE):
+  - Initial condition X0
+  - Change of Xf in time is given by a Vector Field + noise from the stochastic component (using Brownian Motion, called W)
+
+Brownian Motion:
+
+Is a kind of a random walk.
+It's a Stochastic Process that can go for infinite time.
+It always starts at 0.
+It has Gaussian increments: Wt - Ws has a Normal distribuition with a variance that increases with time.
+It has independent increments
+
+
+Basically, the solution to an SDE is the drift term + random noise (+ a small random value from a normal distribution)
+Example of an SDE adding noise to a grayscale image (represented as the 1D pixel array):
+
+```javascript
+function generateGaussianNoise(mean = 0, standardDeviation = 1) {
+    // Generate random Gaussian noise using the Box-Muller transform
+    let u1 = Math.random();
+    let u2 = Math.random();
+    let standardNormal = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+    return mean + standardDeviation * standardNormal;
+}
+
+function simulateForwardDiffusion(pixelArray, totalSteps = 100, driftFactor = 0.0, noiseLevel = 0.05) {
+    let noisyPixelArray = [...pixelArray];
+
+    for (let step = 0; step < totalSteps; step++) {
+        let timeStep = step / totalSteps;
+        let driftTerm = driftFactor * timeStep; // Drift component
+        let noiseStrength = noiseLevel * Math.sqrt(timeStep + 0.01); // Scale noise over time
+
+        noisyPixelArray = noisyPixelArray.map(pixelValue => {
+            let noise = generateGaussianNoise(0, noiseStrength);
+            let newPixelValue = pixelValue + driftTerm + noise * 255; // Apply noise & drift
+            return Math.max(0, Math.min(255, newPixelValue)); // Keep pixel values in range
+        });
+
+        console.log(`Step ${step + 1}: Added noise (σ = ${noiseStrength.toFixed(4)})`);
+    }
+
+    return noisyPixelArray;
+}
+
+let grayscaleImage = Array.from({ length: 100 }, () => Math.random() * 255);
+let noisyImage = simulateForwardDiffusion(grayscaleImage, 50, 0.01, 0.05);
+
+console.log("Original Pixels (first 10):", grayscaleImage.slice(0, 10));
+console.log("Noisy Pixels (first 10):", noisyImage.slice(0, 10));
+```
