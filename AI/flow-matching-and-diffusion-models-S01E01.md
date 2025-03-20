@@ -5,7 +5,7 @@ We represent the objects we want to generate as vectors.
 Images: Height H and Width W.
 3 color channels (RGB):
 
-```javascript
+```typescript
 function createImageArray(H, W) {
     let image = [];
     for (let i = 0; i < H; i++) {
@@ -120,38 +120,48 @@ We assume these conditions hold, so each starting point leads to exactly 1 traje
 
 The idea is to go in the direction of the vector field one small step at a time.
 
-```javascript
+```typescript
+// Type definitions from earlier
+type Vector = number[];
+type VectorField = (x: Vector, t: number) => Vector;
+
 /**
  * Euler Method to numerically solve ODE: dx/dt = f(x, t)
- * @param {Function} vectorField - Function f(x, t) defining the ODE
+ * @param {VectorField} vectorField - Function f(x, t) defining the ODE
  * @param {number} initialTime - Starting time (t0)
  * @param {number} finalTime - Ending time (T)
- * @param {number} initialValue - Initial condition x(t0)
+ * @param {Vector} initialValue - Initial condition x(t0)
  * @param {number} numSteps - Number of steps (n)
- * @returns {Array} - Array of [time, value] pairs representing the trajectory
+ * @returns {Array<[number, Vector]>} - Array of [time, value] pairs representing the trajectory
  */
-function eulerMethod(vectorField, initialTime, finalTime, initialValue, numSteps) {
-    let stepSize = (finalTime - initialTime) / numSteps; // h = (T - t0) / n
+function eulerMethod(
+    vectorField: VectorField,
+    initialTime: number,
+    finalTime: number,
+    initialValue: Vector,
+    numSteps: number
+): Array<[number, Vector]> {
+    const stepSize = (finalTime - initialTime) / numSteps;
     let time = initialTime;
-    let value = initialValue;
-    let trajectory = [[time, value]]; // Store results
+    let value: Vector = [...initialValue];
+    let trajectory: Array<[number, Vector]> = [[time, [...value]]];
 
     // Iteratively compute values using Euler's formula
     for (let i = 0; i < numSteps; i++) {
-        value = value + stepSize * vectorField(value, time); // x_{t+h} = x_t + h * f(x_t, t)
-        time += stepSize; // Update time
-        trajectory.push([time, value]);
+        const derivative: Vector = vectorField(value, time);
+        value = value.map((v, idx) => v + stepSize * derivative[idx]);
+        time += stepSize;
+        trajectory.push([time, [...value]]);
     }
 
     return trajectory;
 }
 
-// Example: Solve dx/dt = x with x(0) = 1 over t = [0,1] with 10 steps
-function exampleVectorField(x, t) {
-    return x; // Simple exponential growth dx/dt = x
-}
+// Example ODE: Solve dx/dt = x in 1D space
+const exampleVectorField: VectorField = (x, t) => x.map(v => v); // Simple exponential growth dx/dt = x
 
-let solution = eulerMethod(exampleVectorField, 0, 1, 1, 10);
+// Example use case: Solve dx/dt = x with x(0) = [1] over t = [0,1] with 10 steps
+const solution = eulerMethod(exampleVectorField, 0, 1, [1], 10);
 console.log("Euler Method Solution:", solution);
 ```
 
@@ -194,17 +204,37 @@ It has independent increments
 Basically, the solution to an SDE is the drift term + random noise (+ a small random value from a normal distribution)
 Example of an SDE adding noise to a grayscale image (represented as the 1D pixel array):
 
-```javascript
-function generateGaussianNoise(mean = 0, standardDeviation = 1) {
-    // Generate random Gaussian noise using the Box-Muller transform
-    let u1 = Math.random();
-    let u2 = Math.random();
-    let standardNormal = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+```typescript
+type Vector = number[];
+
+/**
+ * Generate Gaussian noise using the Box-Muller transform.
+ * @param mean Mean of the distribution (default 0)
+ * @param standardDeviation Standard deviation (default 1)
+ * @returns Random sample from a Gaussian distribution
+ */
+function generateGaussianNoise(mean = 0, standardDeviation = 1): number {
+    const u1 = Math.random();
+    const u2 = Math.random();
+    const standardNormal = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
     return mean + standardDeviation * standardNormal;
 }
 
-function simulateForwardDiffusion(pixelArray, totalSteps = 100, driftFactor = 0.0, noiseLevel = 0.05) {
-    let noisyPixelArray = [...pixelArray];
+/**
+ * Simulate forward diffusion of an image using an SDE
+ * @param {Vector} pixelArray - Array of grayscale pixel intensities
+ * @param {number} totalSteps - Number of steps in the diffusion process
+ * @param {number} driftFactor - Drift coefficient (controls deterministic shift)
+ * @param {number} noiseLevel - Noise scale factor (controls stochastic variation)
+ * @returns {Vector} - Noisy image with diffused pixel values
+ */
+function simulateForwardDiffusion(
+    pixelArray: Vector,
+    totalSteps: number = 100,
+    driftFactor: number = 0.0,
+    noiseLevel: number = 0.05
+): Vector {
+    let noisyPixelArray: Vector = [...pixelArray];
 
     for (let step = 0; step < totalSteps; step++) {
         let timeStep = step / totalSteps;
@@ -223,8 +253,9 @@ function simulateForwardDiffusion(pixelArray, totalSteps = 100, driftFactor = 0.
     return noisyPixelArray;
 }
 
-let grayscaleImage = Array.from({ length: 100 }, () => Math.random() * 255);
-let noisyImage = simulateForwardDiffusion(grayscaleImage, 50, 0.01, 0.05);
+// Example: Simulating forward diffusion on a grayscale image
+const grayscaleImage: Vector = Array.from({ length: 100 }, () => Math.random() * 255);
+const noisyImage: Vector = simulateForwardDiffusion(grayscaleImage, 50, 0.01, 0.05);
 
 console.log("Original Pixels (first 10):", grayscaleImage.slice(0, 10));
 console.log("Noisy Pixels (first 10):", noisyImage.slice(0, 10));
