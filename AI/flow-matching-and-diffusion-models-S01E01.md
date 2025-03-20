@@ -172,7 +172,7 @@ console.log("Euler Method Solution:", solution);
 Takes P_init, which is a Gaussian distribution, does a transformation with an ODE, returns P_data, which is the data distribution.
 Make the Vector Field that defines this ODE a Neural Network.
 The architecture of the Neural Network varies by modality: whether it's images, video, proteins, etc, and will be covered later.
-Vector field, which is a function of time and space, and Thera which are the parameters we can optimize over.
+Vector field, which is a function of time and space, and Theta which are the parameters we can optimize over.
 An ODE is deterministic, so we won't be able to generate a full distribution yet.
 So what we do is make the initial distribution random: X0 is sampled from P_init.
 Our goal is that X1 has the distribution P_data.
@@ -259,4 +259,97 @@ const noisyImage: Vector = simulateForwardDiffusion(grayscaleImage, 50, 0.01, 0.
 
 console.log("Original Pixels (first 10):", grayscaleImage.slice(0, 10));
 console.log("Noisy Pixels (first 10):", noisyImage.slice(0, 10));
+```
+
+### ODE vs SDE
+ODEs have Trajectories as solutions, SDEs have a random Trajectory.
+To define an ODE we need a Vector Field, and for SDE we need a Vector Field and a Diffusion Coefficient.
+An ODE is basically defined by a derivative of the initial condition, and for SDE, small incremental changes of the initial condition are given by small steps in the direction of a Vector Field plus small steps from the Browninan motion step which injects randomness.
+
+### How to sample from an SDE? - the Euler-Maruyama Method!
+
+1. We begin at an initial time of 0 with an initial state
+2. To define the step size, divide the time range into n equal steps
+3. Simulate over time:
+    - `newState = currentState + stepSize * deterministicTrend + Math.sqrt(stepSize) * randomVariation`
+    - Deterministic Trend (or drift term) represents the smooth, predictable movement
+    - Random Variation (or diffusion term) adds uncertainty by injecting random noise
+    - The noise is drawn from a Gaussian distribution (which is a normal distribution with a mean of 0 and variance 1)
+4. Advance in time
+
+```typescript
+type Vector = number[];
+
+type StochasticProcess = {
+    computeDeterministicTrend: (state: Vector, time: number) => Vector;
+    computeRandomVariation: (state: Vector, time: number) => Vector;
+};
+
+/**
+ * Generates Gaussian noise for each component of a vector.
+ * Uses the Box-Muller transform to sample from a normal distribution.
+ * @param dimensions Number of dimensions in the vector
+ * @returns A vector of random values sampled from a standard normal distribution (mean = 0, variance = 1)
+ */
+function generateGaussianNoise(dimensions: number): Vector {
+    return Array.from({ length: dimensions }, () => {
+        const randomUniform1 = Math.random();
+        const randomUniform2 = Math.random();
+        return Math.sqrt(-2.0 * Math.log(randomUniform1)) * Math.cos(2.0 * Math.PI * randomUniform2);
+    });
+}
+
+/**
+ * Implements the Euler-Maruyama method for simulating a stochastic process.
+ * @param stochasticProcess The SDE model containing drift and diffusion functions
+ * @param totalSteps The total number of time steps
+ * @param initialTime The starting time of the simulation
+ * @param initialState The initial state of the system
+ * @returns An array of time-value pairs showing the evolution of the system
+ */
+function simulateStochasticProcess(
+    stochasticProcess: StochasticProcess,
+    totalSteps: number,
+    initialTime: number,
+    initialState: Vector
+): Array<[number, Vector]> {
+    const stepSize = 1 / totalSteps;
+    let currentTime = initialTime;
+    let currentState: Vector = [...initialState];
+    let trajectory: Array<[number, Vector]> = [[currentTime, [...currentState]]];
+
+    for (let step = 0; step < totalSteps; step++) {
+        // Compute the smooth (deterministic) part of the change
+        const driftTerm: Vector = stochasticProcess.computeDeterministicTrend(currentState, currentTime);
+
+        // Compute how noise affects the system
+        const diffusionCoefficient: Vector = stochasticProcess.computeRandomVariation(currentState, currentTime);
+        const randomNoise: Vector = generateGaussianNoise(currentState.length).map(
+            (randomSample, index) => randomSample * Math.sqrt(stepSize) * diffusionCoefficient[index]
+        );
+
+        currentState = currentState.map((value, index) => value + stepSize * driftTerm[index] + randomNoise[index]);
+
+        currentTime += stepSize;
+
+        trajectory.push([currentTime, [...currentState]]);
+    }
+
+    return trajectory;
+}
+
+// Example: Simulating an Ornstein-Uhlenbeck Process (Mean-reverting random motion)
+const exampleStochasticProcess: StochasticProcess = {
+    computeDeterministicTrend: (state, time) => state.map(value => -0.5 * value), // Pulls values toward zero
+    computeRandomVariation: (state, time) => state.map(() => 0.3) // Constant noise level
+};
+
+// Initial condition (starting at 1.0)
+const initialCondition: Vector = [1.0];
+
+// Run the simulation with 100 time steps
+const simulatedTrajectory = simulateStochasticProcess(exampleStochasticProcess, 100, 0, initialCondition);
+
+// Print first 10 steps
+console.log("Euler-Maruyama Simulation Output:", simulatedTrajectory.slice(0, 10));
 ```
