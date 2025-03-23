@@ -353,3 +353,45 @@ const simulatedTrajectory = simulateStochasticProcess(exampleStochasticProcess, 
 // Print first 10 steps
 console.log("Euler-Maruyama Simulation Output:", simulatedTrajectory.slice(0, 10));
 ```
+
+### Ohrnstein-Uhlenbeck Process
+
+Is a type of random motion (like Brownian motion), but it tends to drift back to the mean over time.
+Unlike Brownian motion, there's no return to the mean, no "center" pulling you back.
+
+## THE LAB
+Lab 1: Working with SDEs - find it on [the homepage for this course](https://diffusion.csail.mit.edu/)
+
+The exercise is to be done in Python, using pytorch, so mapping TS to Python will be covered later.
+First, the review of the concepts you need:
+
+### Part 0: Introduction
+
+Recall: the Vector Field is the Drift Coefficient is the `uₜ(x)` in the formula.
+Solving the ODE gives you the Trajectory.
+
+The basis of both ODEs and SDEs are time-dependent Vector Fields, which are the `u`-functions that take where in space we are and where in time we are, and return the direction we should be going next.
+They accept 2 parameters:
+- a vector in d-dimensional space (like 2D or 3D)
+- time t between 0 and 1
+And they return another vector in the same-number-of-dimensions space.
+
+```typescript
+type Vector = [number, number]; // example 2D dimentsional vector
+
+function vectorField(position: Vector, time: number): Vector {
+  const [x1, x2] = position;
+
+  // Your change function goes here, for example a rotation:
+  const velocityX = -x2 * Math.sin(Math.PI * time);
+  const velocityY = x1 * Math.sin(Math.PI * time);
+
+  return [velocityX, velocityY];
+}
+
+// Usage:
+const currentPosition: Vector = [1.0, 2.0];
+const currentTime: number = 0.5; // halfway through time interval
+
+const currentVelocity = vectorField(currentPosition, currentTime);
+```
